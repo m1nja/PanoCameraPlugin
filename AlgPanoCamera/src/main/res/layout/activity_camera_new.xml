@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rlMain"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <SurfaceView
+        android:id="@+id/my_surfaceView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <com.slicejobs.panacamera.cameralibrary.widget.RectImageView
+        android:id="@+id/img_guide_rect"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="false" />
+
+    <RelativeLayout
+        android:id="@+id/relative_panorama"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="60dp"
+        android:background="@drawable/stitching_image_bg"
+        android:orientation="horizontal">
+
+        <com.facebook.drawee.view.SimpleDraweeView
+            android:id="@+id/img_panorama_preview"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:adjustViewBounds="true"
+            fresco:actualImageScaleType="fitStart" />
+    </RelativeLayout>
+
+    <com.slicejobs.panacamera.cameralibrary.widget.OverlapView
+        android:id="@+id/drawtexture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:alpha="0.5" />
+
+    <com.slicejobs.panacamera.cameralibrary.widget.CameraLine xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/cameraLine"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:lineCrossLength="5dp"
+        app:lineCrossWidth="1dp"
+        app:lineWidth="1dp" />
+
+    <ImageView
+        android:id="@+id/btnClose"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginTop="@dimen/activity_horizontal_margin"
+        android:src="@mipmap/back_camera" />
+
+    <RelativeLayout
+        android:id="@+id/bootomRly"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="38dp">
+
+        <LinearLayout
+            android:id="@+id/llThumbnail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="24dp"
+            android:orientation="vertical"
+            android:visibility="invisible">
+
+            <com.facebook.drawee.view.SimpleDraweeView
+                android:id="@+id/imgThumbnail"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:visibility="gone"
+                fresco:actualImageScaleType="centerCrop"
+                fresco:roundAsCircle="true" />
+
+            <TextView
+                android:id="@+id/tvTotalPicNum"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="以拍摄3张"
+                android:textColor="@color/white"
+                android:textSize="@dimen/sp_10"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/btnTakePhoto"
+            android:layout_width="76dp"
+            android:layout_height="76dp"
+            android:layout_centerInParent="true"
+            android:src="@mipmap/take_picture"
+            android:text="拍照" />
+
+        <ImageView
+            android:id="@+id/imgSureCamera"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="24dp"
+            android:src="@mipmap/sure_camera"
+            android:visibility="invisible" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/tvCloumn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="24dp"
+            android:text="0张"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_16" />
+
+    </RelativeLayout>
+
+</RelativeLayout>
