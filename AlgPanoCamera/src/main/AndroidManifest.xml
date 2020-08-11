@@ -11,10 +11,30 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CAMERA" />
     <application>
+        <provider
+            android:authorities="com.slicejobs.panacamera.fileProvider"
+            android:name="android.support.v4.content.FileProvider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_pths"/>
+        </provider>
+
         <activity
-            android:name=".cameralibrary.ui.activity.CameraActivity"
+            android:name="com.slicejobs.panacamera.cameralibrary.ui.activity.StitchingActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.slicejobs.panacamera.cameralibrary.ui.activity.CameraActivity"
             android:launchMode="singleTop" />
-        <activity android:name=".cameralibrary.ui.activity.ImagePreviewActivity" />
+        <activity android:name="com.slicejobs.panacamera.cameralibrary.ui.activity.ImagePreviewActivity" />
 
         <meta-data
             android:name="android.max_aspect"

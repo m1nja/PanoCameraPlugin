@@ -107,8 +107,8 @@ public class ImagePreviewActivity extends SimpleActivity implements ImagePreview
     }
 
     private void initAnim() {
-        this.hideAnimationSet = (AnimationSet)AnimationUtils.loadAnimation(this.mContext, R.anim.lingmou_slide_top_out);
-        this.showAnimationSet = (AnimationSet)AnimationUtils.loadAnimation(this.mContext, R.anim.lingmou_slide_top_in);
+        this.hideAnimationSet = (AnimationSet)AnimationUtils.loadAnimation(this.mContext, R.anim.slicejobs_slide_top_out);
+        this.showAnimationSet = (AnimationSet)AnimationUtils.loadAnimation(this.mContext, R.anim.slicejobs_slide_top_in);
     }
 
     private void showTitleBar(boolean isShow) {

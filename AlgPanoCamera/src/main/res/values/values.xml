@@ -87,7 +87,7 @@
     <item name="loading_view" type="id"/>
     <item name="no_network_retry_view" type="id"/>
     <item name="no_network_view" type="id"/>
-    <string name="app_name">秒识</string>
+    <string name="app_name">爱零工全景</string>
     <string name="cancle">取消</string>
     <string name="close_list">收起</string>
     <string name="empty_view_hint">暂无数据</string>
@@ -111,7 +111,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:windowBackground">@color/transparent</item>
+
     </style>
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
@@ -150,15 +150,15 @@
         <!-- 后面的activity变暗 -->
     </style>
     <style name="popwin_anim_style">
-        <item name="android:windowEnterAnimation">@anim/lingmou_alpha_out</item>
-        <item name="android:windowExitAnimation">@anim/lingmou_alpha_in</item>
+        <item name="android:windowEnterAnimation">@anim/slicejobs_alpha_out</item>
+        <item name="android:windowExitAnimation">@anim/slicejobs_alpha_in</item>
     </style>
     <style name="popwin_bottom">
-        <item name="android:windowEnterAnimation">@anim/lingmou_slide_bottom_in</item>
-        <item name="android:windowExitAnimation">@anim/lingmou_slide_bottom_out</item>
+        <item name="android:windowEnterAnimation">@anim/slicejobs_slide_bottom_out</item>
+        <item name="android:windowExitAnimation">@anim/slicejobs_slide_bottom_out</item>
     </style>
     <style name="popwin_filter">
-        <item name="android:windowEnterAnimation">@anim/lingmou_slide_top_in</item>
-        <item name="android:windowExitAnimation">@anim/lingmou_slide_top_out</item>
+        <item name="android:windowEnterAnimation">@anim/slicejobs_slide_top_in</item>
+        <item name="android:windowExitAnimation">@anim/slicejobs_slide_top_out</item>
     </style>
 </resources>

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
+import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.graphics.Bitmap.Config;
 import android.graphics.drawable.Drawable;
@@ -26,8 +27,10 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.SurfaceHolder.Callback;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.RelativeLayout.LayoutParams;
 
@@ -46,6 +49,8 @@ import com.slicejobs.panacamera.cameralibrary.helper.SystemUtil;
 import com.slicejobs.panacamera.cameralibrary.helper.ToastUtil;
 import com.slicejobs.panacamera.cameralibrary.model.bean.IntentKey;
 import com.slicejobs.panacamera.cameralibrary.model.event.TakePictureResult;
+import com.slicejobs.panacamera.cameralibrary.utils.ImageUtil;
+import com.slicejobs.panacamera.cameralibrary.widget.BalanceView;
 import com.slicejobs.panacamera.cameralibrary.widget.RectImageView;
 import com.socks.library.KLog;
 import com.tbruyelle.rxpermissions2.RxPermissions;
@@ -56,8 +61,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import me.drakeet.materialdialog.MaterialDialog;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 
-public class CameraActivity extends Activity implements Callback, SensorControler.CameraFocusListener, OnClickListener {
+
+public class CameraActivity extends Activity implements Callback, SensorControler.CameraFocusListener, OnClickListener, SensorEventListener{
     private static final String TAG = "CameraActivity";
     private SurfaceView mSurfaceView;
     private ImageView btnClose;
@@ -69,6 +79,8 @@ public class CameraActivity extends Activity implements Callback, SensorControle
     private ImageView imgSureCamera;
     private SimpleDraweeView imgThumbnail;
     private LinearLayout llThumbnail;
+    private RelativeLayout guideLayout;
+    RelativeLayout rlHBubble;
     private MaterialDialog mVagueDialog;
     private MaterialDialog mDeleteLastImageDialog;
     private int cameraPosition = 0;
@@ -98,6 +110,12 @@ public class CameraActivity extends Activity implements Callback, SensorControle
     private Activity mContext;
     private int mValidHint = 0;
     private int mValidOverlap = 0;
+    private String panoImagPath = null;
+
+    private BalanceView hBalanceView;
+    private SurfaceHolder surfaceHolder;
+    private SensorManager sensorManager;
+
     public Handler mHanlder = new Handler() {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
@@ -117,9 +135,13 @@ public class CameraActivity extends Activity implements Callback, SensorControle
                     if (valid) {
                         CameraActivity.this.btnTakePhoto.setEnabled(true);
                         CameraActivity.this.btnTakePhoto.setImageResource(R.mipmap.take_picture);
+                        if (CameraActivity.this.mNewImagePaths.size()  > 0) {
+                            guideLayout.setVisibility(View.VISIBLE);
+                        }
                     } else {
                         CameraActivity.this.btnTakePhoto.setEnabled(false);
                         CameraActivity.this.btnTakePhoto.setImageResource(R.mipmap.take_picture_disabled);
+                        guideLayout.setVisibility(View.INVISIBLE);
                     }
 
                     return;
@@ -158,9 +180,13 @@ public class CameraActivity extends Activity implements Callback, SensorControle
                     if (CameraActivity.this.mFirstImage == 0 && (CameraActivity.this.mProcessingImage != 0 || CameraActivity.this.mValidHint == 0 || CameraActivity.this.mValidOverlap == 0)) {
                         CameraActivity.this.btnTakePhoto.setEnabled(false);
                         CameraActivity.this.btnTakePhoto.setImageResource(R.mipmap.take_picture_disabled);
+                        guideLayout.setVisibility(View.INVISIBLE);
                     } else {
                         CameraActivity.this.btnTakePhoto.setEnabled(true);
                         CameraActivity.this.btnTakePhoto.setImageResource(R.mipmap.take_picture);
+                        if (CameraActivity.this.mNewImagePaths.size()  > 0) {
+                            guideLayout.setVisibility(View.VISIBLE);
+                        }
                     }
                     break;
                 case 7:
@@ -242,7 +268,7 @@ public class CameraActivity extends Activity implements Callback, SensorControle
                     Intent intent = new Intent(context, CameraActivity.class);
                     intent.putExtras(bundle);
                     context.startActivityForResult(intent, resquestCode);
-                    context.overridePendingTransition(R.anim.lingmou_slide_bottom_in, 0);
+                    context.overridePendingTransition(R.anim.slicejobs_slide_bottom_in, 0);
                 } else {
                     final MaterialDialog materialDialog = new MaterialDialog(context);
                     materialDialog.setTitle("提示");
@@ -261,6 +287,9 @@ public class CameraActivity extends Activity implements Callback, SensorControle
 
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         this.setContentView(R.layout.activity_camera);
         this.mContext = this;
@@ -278,12 +307,58 @@ public class CameraActivity extends Activity implements Callback, SensorControle
         this.imgThumbnail = (SimpleDraweeView)this.findViewById(R.id.imgThumbnail);
         this.llThumbnail = (LinearLayout)this.findViewById(R.id.llThumbnail);
         this.imgDelete = (ImageView)this.findViewById(R.id.imgDelete);
+        rlHBubble = (RelativeLayout) findViewById(R.id.rl_h_bubble);
+
+        guideLayout = findViewById(R.id.rlMask);
         this.btnClose.setOnClickListener(this);
         this.btnTakePhoto.setOnClickListener(this);
         this.mSurfaceView.setOnClickListener(this);
         this.imgSureCamera.setOnClickListener(this);
         this.llThumbnail.setOnClickListener(this);
         this.imgDelete.setOnClickListener(this);
+
+        initSpiri();
+        initSensor();
+
+    }
+
+    private void initSpiri() {
+        hBalanceView = new BalanceView(this, DensityUtil.dip2px(this, 300), DensityUtil.dip2px(this, 300));
+        surfaceHolder = hBalanceView.getHolder();
+        hBalanceView.setZOrderOnTop(true);
+        surfaceHolder.setFormat(PixelFormat.TRANSPARENT);//设置背景透明
+        surfaceHolder.addCallback(new SurfaceHolder.Callback() {
+
+            @Override
+            public void surfaceChanged(SurfaceHolder holder, int format, int width,
+                                       int height) {
+
+            }
+
+            //一切都准备好
+            @Override
+            public void surfaceCreated(SurfaceHolder holder) {
+                hBalanceView.setSurfaceHolder(surfaceHolder);
+                Thread thread = new Thread(hBalanceView);
+                thread.start();
+            }
+
+            @Override
+            public void surfaceDestroyed(SurfaceHolder holder) {
+            }
+        });
+
+        rlHBubble.addView(hBalanceView);
+    }
+
+    private void initSensor() {
+        sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);//初始化传感器
+        Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);//获得加速度传感器
+//        Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);//陀螺仪
+        if (null != sensor && sensorManager != null) {
+            //根据不同应用，需要的反应速率不同，具体根据实际情况设定
+            sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+        }
     }
 
     protected void initEventAndData() {
@@ -303,6 +378,7 @@ public class CameraActivity extends Activity implements Callback, SensorControle
         this.mPreViewFrameThread.setProcessState(true);
         this.mPreViewFrameThread.start();
         this.mBasePath = this.getExternalFilesDir("pictures").getAbsolutePath() + File.separator;
+        this.panoImagPath = genPanoImageFileName();
         this.registerTakePictureState();
         ImageStitcher.start();
     }
@@ -432,6 +508,7 @@ public class CameraActivity extends Activity implements Callback, SensorControle
             Intent intent = new Intent();
             this.mBundle.putSerializable(IntentKey.IMAGES, (ArrayList)this.mNewImagePaths);
             this.mBundle.putInt(IntentKey.ORIENTATION, this.mOrientationListener.getRememberOriginalOrientation());
+            this.mBundle.putString(IntentKey.IMAGE_PICTURE, panoImagPath);
             intent.putExtras(this.mBundle);
             this.setResult(-1, intent);
             this.back();
@@ -452,7 +529,7 @@ public class CameraActivity extends Activity implements Callback, SensorControle
 
     private void back() {
         this.finish();
-        this.overridePendingTransition(0, R.anim.lingmou_slide_bottom_out);
+        this.overridePendingTransition(0, R.anim.slicejobs_slide_bottom_out);
     }
 
     private void setupCamera(Camera camera) {
@@ -561,8 +638,7 @@ public class CameraActivity extends Activity implements Callback, SensorControle
 
     public boolean saveImageToGallery(String fname) {
         File pictureFile = new File(fname);
-        //this.mImagePath = "file://" + pictureFile;
-        this.mImagePath = fname;
+        this.mImagePath = "file://" + pictureFile;
         this.mContext.sendBroadcast(new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE", Uri.parse("file://" + pictureFile)));
         RxBus.getInstance().post(new TakePictureResult(this.mImagePath, true));
         return true;
@@ -628,6 +704,12 @@ public class CameraActivity extends Activity implements Callback, SensorControle
             this.mPreViewFrameThread.setProcessState(false);
             this.mPreViewFrameThread.notifyThread();
         }
+        if(sensorManager != null){
+            sensorManager.unregisterListener(this);
+        }
+        if (hBalanceView != null) {
+            hBalanceView.colseThread();//停止线程
+        }
 
         super.onDestroy();
     }
@@ -675,6 +757,7 @@ public class CameraActivity extends Activity implements Callback, SensorControle
         if (this.btnTakePhoto != null) {
             this.btnTakePhoto.setEnabled(false);
             this.btnTakePhoto.setImageResource(R.mipmap.take_picture_disabled);
+            guideLayout.setVisibility(View.INVISIBLE);
         }
 
     }
@@ -737,25 +820,41 @@ public class CameraActivity extends Activity implements Callback, SensorControle
 
             Log.d("DEADBEEF", "renderPanorama() +++++");
             if (this.panoramaBitmap == null) {
-                int max_width = SystemUtil.getScreenWH(this.mContext).widthPixels - DensityUtil.dip2px(this.mContext, 20.0F);
-                int height = this.imgPanorama.getMeasuredHeight();
+                int max_width = SystemUtil.getScreenWH(this.mContext).widthPixels;
+                int height = SystemUtil.getScreenWH(this.mContext).heightPixels;
                 Config conf = Config.ARGB_8888;
                 this.panoramaBitmap = Bitmap.createBitmap(max_width, height, conf);
             }
 
             ImageStitcher.renderPanorama(this.panoramaBitmap);
             this.imgPanorama.setImageBitmap(this.panoramaBitmap);
+            try {
+                ImageUtil.saveBitmapToPath(this,panoImagPath, this.panoramaBitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             Log.d("DEADBEEF", "renderPanorama() -----");
         }
     }
 
     private final String genFileName() {
-        File appDir = new File(Environment.getExternalStorageDirectory(), "ailinggong");
+        File appDir = new File(Environment.getExternalStorageDirectory(), "algPanoPart");
         if (!appDir.exists()) {
             appDir.mkdir();
         }
 
         String fileName1 = System.currentTimeMillis() + ".jpg";
+        File tmpFile = new File(appDir, fileName1);
+        return tmpFile.getAbsolutePath();
+    }
+
+    private final String genPanoImageFileName() {
+        File appDir = new File(Environment.getExternalStorageDirectory(), "algPano");
+        if (!appDir.exists()) {
+            appDir.mkdir();
+        }
+
+        String fileName1 = "pano_image_" + System.currentTimeMillis() + ".jpg";
         File tmpFile = new File(appDir, fileName1);
         return tmpFile.getAbsolutePath();
     }
@@ -876,5 +975,34 @@ public class CameraActivity extends Activity implements Callback, SensorControle
             }
 
         }
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        final float x = event.values[0];
+        final float y = event.values[1];
+        final float z = event.values[2];
+
+        if (y > 5) {//才是侧面, 10正侧面
+            hBalanceView.updateBubble(z, x);
+            if (hBalanceView.isHorizontal()) {
+                if (hBalanceView.isVertical()) {
+
+                } else {
+                    ToastUtil.show("设备请不要前后倾斜");
+                }
+            } else {
+                ToastUtil.show("设备请不要前后倾斜");
+            }
+
+        } else {
+            ToastUtil.show("请将设备拿正！");
+        }
+
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 }

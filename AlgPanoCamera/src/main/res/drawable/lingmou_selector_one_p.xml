@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <!--&lt;!&ndash;选中的时候&ndash;&gt;-->
-    <item android:drawable="@drawable/lingmou_one_p_normal" android:state_selected="true" />
-    <item android:drawable="@drawable/lingmou_one_p_disabled" android:state_selected="false" />
-    <!--默认是未选中-->
-    <item android:drawable="@drawable/lingmou_one_p_disabled" />
-</selector>

@@ -38,7 +38,7 @@
 
     <RelativeLayout
         android:id="@+id/rlMask"
-        android:layout_width="120dp"
+        android:layout_width="220dp"
         android:layout_height="match_parent"
         android:visibility="invisible">
 
@@ -62,8 +62,9 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_marginTop="24dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginBottom="24dp"
             android:ems="1"
             android:text="拼接参考"
             android:textColor="@color/white"
@@ -76,14 +77,15 @@
         android:layout_height="match_parent"
         app:lineCrossLength="5dp"
         app:lineCrossWidth="1dp"
-        app:lineWidth="1dp" />
+        app:lineWidth="1dp"
+        android:visibility="gone"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
         android:layout_marginRight="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="@dimen/activity_horizontal_margin">
+        android:layout_marginTop="36dp">
 
         <ImageView
             android:id="@+id/btnClose"
@@ -165,6 +167,13 @@
             android:src="@mipmap/sure_camera"
             android:visibility="invisible" />
 
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/rl_h_bubble"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_centerInParent="true"
+        >
     </RelativeLayout>
 
 </RelativeLayout>

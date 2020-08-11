@@ -4,7 +4,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:maxWidth="200dp"
-    android:background="@drawable/lingmou_dialog_toast_bg"
+    android:background="@drawable/slicejobs_dialog_toast_bg"
     android:gravity="center"
     android:padding="8dp"
     android:text="当前已是最新版本"

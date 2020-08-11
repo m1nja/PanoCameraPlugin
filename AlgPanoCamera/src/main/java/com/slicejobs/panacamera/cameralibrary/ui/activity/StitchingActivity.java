@@ -7,22 +7,36 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Animatable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.backends.pipeline.PipelineDraweeControllerBuilder;
+import com.facebook.drawee.controller.BaseControllerListener;
+import com.facebook.drawee.drawable.ScalingUtils;
+import com.facebook.drawee.generic.GenericDraweeHierarchy;
+import com.facebook.drawee.generic.GenericDraweeHierarchyBuilder;
+import com.facebook.drawee.interfaces.DraweeController;
+import com.facebook.drawee.view.SimpleDraweeView;
+import com.facebook.imagepipeline.image.ImageInfo;
 import com.slicejobs.panacamera.R;
 import com.slicejobs.panacamera.cameralibrary.CameraSnap;
+import com.slicejobs.panacamera.cameralibrary.fresco.zoomable.ZoomableDraweeView;
 import com.slicejobs.panacamera.cameralibrary.model.bean.IntentKey;
+import com.slicejobs.panacamera.cameralibrary.widget.ScaleImageView;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,11 +44,12 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class StitchingActivity extends Activity {
 
     private final int CLICK_PHOTO = 10001;
     private Uri fileUri;
-    private ImageView ivImage;
+    private ScaleImageView panoImage;
 
 
     @Override
@@ -43,10 +58,9 @@ public class StitchingActivity extends Activity {
         setContentView(R.layout.activity_stitching);
         CameraSnap.initApplication(getApplication());
 
-        ivImage = (ImageView)findViewById(R.id.ivImage);
+        panoImage = (ScaleImageView) findViewById(R.id.panoImage);
 
         Button btOpenCamera = (Button)findViewById(R.id.bt_open_camera);
-        Button btStitch = (Button)findViewById(R.id.bt_stitch);
 
         btOpenCamera.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,21 +81,6 @@ public class StitchingActivity extends Activity {
             }
         });
 
-        btStitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-
-
-            }
-        });
-
-        ivImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
 
     }
 
@@ -93,7 +92,10 @@ public class StitchingActivity extends Activity {
                 if(resultCode == RESULT_OK ){
 
                     Bundle bundle = imageReturnedIntent.getExtras();
-                    List<String> mImagePaths = bundle.getStringArrayList(IntentKey.IMAGES);
+                    String panaPath = bundle.getString(IntentKey.IMAGE_PICTURE);
+                    Bitmap panoBitmap = BitmapFactory.decodeFile(panaPath);
+                    panoImage.setImageBitmap(panoBitmap);
+                    /*List<String> mImagePaths = bundle.getStringArrayList(IntentKey.IMAGES);
 
 
                     for (String str : mImagePaths) {
@@ -112,7 +114,7 @@ public class StitchingActivity extends Activity {
 //                            fileUri = Uri.fromFile(file);
 //                        }
 //
-//                        fileUri = Uri.parse("content://com.keller.myopencvstitching.fileProvider/lingmou/1544067393338.jpg");
+//                        fileUri = Uri.parse("content://com.keller.myopencvstitching.fileProvider/sliicejobs/1544067393338.jpg");
 //                        grantUriPermission(getPackageName(), fileUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 //
 //                        if(file.exists()) {
@@ -134,7 +136,7 @@ public class StitchingActivity extends Activity {
                             Log.d("--------------", "异常了："+e.toString());
                             e.printStackTrace();
                         }
-                    }
+                    }*/
 
                 }
                 break;

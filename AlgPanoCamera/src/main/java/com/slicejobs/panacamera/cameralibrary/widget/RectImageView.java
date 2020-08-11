@@ -147,7 +147,7 @@ public class RectImageView extends AppCompatImageView {
 
             path.lineTo(points[0].x, points[0].y);
             if (valid_overlap > 0) {
-                this.mPaint.setColor(Color.argb(128, 80, 183, 235));
+                this.mPaint.setColor(Color.argb(128, 237, 210, 1));
             } else {
                 this.mPaint.setColor(Color.argb(128, 178, 178, 178));
             }
